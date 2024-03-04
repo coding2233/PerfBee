@@ -26,7 +26,6 @@ public:
     ~App();
 private:
     std::unique_ptr<WebSocket> ws_;
-    std::map<uint8_t,AppWindow*> windows_;
     // std::string server_url_;
     bool show_demo_window_;
     bool show_implot_demo_window_;
@@ -34,13 +33,6 @@ private:
     AppVersion server_version_;
     AppVersion client_version_;
 
-    bool ConnectToServer();
-
-    bool CheckConnect();
-    bool Connect(std::string server_url);
-    void DispatchMessage(uint8_t key,const std::string & message);
-
-    void OnWebSocketSend(uint8_t key,const std::string & message);
 public:
     void OnImGuiDraw() override;
     void RunAfter() override;

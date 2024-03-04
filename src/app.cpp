@@ -16,7 +16,6 @@ namespace stdfs = std::filesystem;
 #include "profiler/profiler_window.h"
 #include "app_settings.h"
 
-std::string server_url_;
 
 #ifdef __EMSCRIPTEN__
 #include <unistd.h>
@@ -104,23 +103,8 @@ App::App():ImplApp("PerfBee",1280,800,0)
 {
     ImPlot::CreateContext();
 
-    server_url_ = "ws://127.0.0.1:2233";
-
-    windows_.insert({1,new InformationWindow()});
-    windows_.insert({7,new LogWindow()});
-    windows_.insert({3,new InspectorWindow()});
-    windows_.insert({4,new FileWindow()});
-    windows_.insert({5,new TerminalWindow()});
-    windows_.insert({6,new ProfilerWindow()});
-
-    //bind websocket send
-    for (auto iter = windows_.begin();iter!= windows_.end();iter++)
-    {
-        iter->second->BindSend(std::bind(&App::OnWebSocketSend,this,std::placeholders::_1,std::placeholders::_2),iter->first);
-    }
-
     ImGuiIO &io = ImGui::GetIO();
-    float size_pixels = 16.0f;
+    float size_pixels = 14.0f;
 
 #ifdef __EMSCRIPTEN__
     EM_ASM(
@@ -184,10 +168,7 @@ App::App():ImplApp("PerfBee",1280,800,0)
 
 App::~App()
 {
-    for (auto iter = windows_.begin();iter!= windows_.end();iter++)
-    {
-        delete iter->second;
-    }
+
 }
 
 
@@ -220,20 +201,7 @@ void App::OnImGuiDraw()
 
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("Window"))
-            {
-                for (auto iter = windows_.begin(); iter != windows_.end(); iter++)
-                {
-                    bool show_window = iter->second->GetShow();
-                    if(ImGui::MenuItem(iter->second->GetName().c_str(),NULL,&show_window))
-                    {
-                        iter->second->SetShow(show_window);
-                    }
-//                    ImGui::Separator();
-                }
 
-                ImGui::EndMenu();
-            }
 #ifndef __EMSCRIPTEN__
             if (ImGui::BeginMenu("Demo"))
             {
@@ -272,36 +240,12 @@ void App::OnImGuiDraw()
             }
 #endif
 
-
-            if (ImGui::BeginMenu("Version"))
-            {
-                if (ImGui::BeginMenu("Server"))
-                {
-                    ImGui::MenuItem(server_version_.Version.c_str());
-                    ImGui::EndMenu();
-                }
-                if (ImGui::BeginMenu("Client"))
-                {
-                    ImGui::MenuItem(client_version_.Version.c_str());
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMenu();
-            }
-
             ImGui::EndMenuBar();
-
-
         }
 
 
     }
     ImGui::End();
-
-    //绘制窗口
-    for (auto iter = windows_.begin(); iter != windows_.end(); iter++)
-    {
-        iter->second->DrawWindow();
-    }
 
     if(show_demo_window_)
     {
@@ -313,95 +257,8 @@ void App::OnImGuiDraw()
     }
 }
 
-bool App::ConnectToServer()
-{
-    std::string url;
-    int charLen = strlen(server_url_.c_str());
-    url.append(server_url_.c_str(),charLen);
-    return Connect(url);
-}
-
-bool App::CheckConnect()
-{
-    if(ws_ && ws_->getReadyState() != WebSocket::CLOSED)
-    {
-        ws_->poll();
-        WebSocket::pointer wsp = &*ws_;
-////            ws_->dispatch([wsp,this](const std::string & message) {
-////                this->OnMessage(message);
-////            });
-        ws_->dispatchBinary([wsp,this](const std::vector<uint8_t> & message) {
-            const int *message_size_ = (const int *)&message[0];
-            int message_size = *message_size_;
-            int message_sieze_o = message.size();
-            uint8_t message_type = message[4];
-            std::string json_mssage(message.begin()+5, message.end());
-            this->DispatchMessage(message_type,json_mssage);
-        });
-
-        return true;
-    }
-    return false;
-}
 
 
-
-bool App::Connect(std::string server_url)
-{
-    if(CheckConnect())
-    {
-        ws_->close();
-    }
-    ws_ = std::unique_ptr<WebSocket>(WebSocket::from_url(server_url.c_str()));
-
-    return  ws_ != NULL;
-}
-
-
-void App::DispatchMessage(uint8_t key,const std::string & message)
-{
-    auto window_iter = windows_.find(key);
-    if (window_iter!=windows_.end())
-    {
-        window_iter->second->OnMessage(message);
-    }
-    else
-    {
-        if (key==0)
-        {
-            server_version_ = json::parse(message);
-            server_version_.BuildVersion();
-            AppVersion &client_version = client_version_;
-            client_version.Major = 0;
-            client_version.Minor = 2;
-            client_version.Patch = 2;
-            client_version.BuildVersion();
-        }
-    }
-}
-
-void App::OnWebSocketSend(uint8_t key,const std::string & message)
-{
-    int message_size = message.size();
-    if (message_size<=0)
-    {
-        return;
-    }
-    int size = message.size()+4+1;
-    std::vector<uint8_t> data;
-    data.assign(message.begin(),message.end());
-    message_size = data.size();
-    data.insert(data.begin(),key);
-    message_size = data.size();
-    uint8_t *size_t = (uint8_t *)&size;
-    data.insert(data.begin(),size_t,size_t+4);
-    message_size = data.size();
-
-    if(ws_ && ws_->getReadyState() != WebSocket::CLOSED)
-    {
-        ws_->sendBinary(data);
-    }
-}
 
 void App::RunAfter()
 {
