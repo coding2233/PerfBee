@@ -145,22 +145,30 @@ App::App():ImplApp("PerfBee",1280,800,0)
     io.Fonts->AddFontFromFileTTF("SourceCodePro-Medium.ttf", size_pixels);
 #endif
 
+//    const std::wstring path = L"python_env;python_env/Scripts;python_env/Lib;python_env/Lib/site-packages;python_scripts";
+//    Py_SetPath(path.c_str());
     Py_Initialize();
-
-    const char* scriptFilename = "test.py";
-    // 读取Python脚本文件内容
-    FILE* PythonScriptFile = fopen(scriptFilename, "r");
-    if (PythonScriptFile) {
-        // 运行Python脚本
-//          PyRun_SimpleFile(PythonScriptFile, scriptFilename);
-
-        PyRun_SimpleString("print('Hello, world!')");
-
-        // 关闭文件
-        fclose(PythonScriptFile);
-    } else {
-        // 文件打开失败的错误处理
-        fprintf(stderr, "Cannot open Python script file: %s\n", scriptFilename);
+    PyRun_SimpleString("print('Hello, world!')");
+   // PyRun_SimpleString("execfile('python_scripts/main.py')");
+    try
+    {
+        const char* scriptFilename = "python_scripts/main.py";
+        // 读取Python脚本文件内容
+        FILE* PythonScriptFile = fopen(scriptFilename, "r");
+        if (PythonScriptFile)
+        {
+            // 运行Python脚本
+            PyRun_SimpleFile(PythonScriptFile, scriptFilename);
+            // 关闭文件
+            fclose(PythonScriptFile);
+        } else {
+            // 文件打开失败的错误处理
+            fprintf(stderr, "Cannot open Python script file: %s\n", scriptFilename);
+        }
+    }
+    catch (std::exception &e)
+    {
+        std::cout << "Standard exception: " << e.what() << std::endl;
     }
 
     Py_Finalize();

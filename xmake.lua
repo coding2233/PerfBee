@@ -50,6 +50,7 @@ else
             --print("--------------".."$(buildir)/")
              -- build/windows/x64/debug
             os.cp("$(projectdir)/python_scripts", "$(buildir)/$(plat)/$(arch)/$(mode)/")
+            os.cp("$(projectdir)/python_env", "$(buildir)/$(plat)/$(arch)/$(mode)/")
             os.cp("$(projectdir)/data/*.*", "$(buildir)/$(plat)/$(arch)/$(mode)/")
         end)
 end
