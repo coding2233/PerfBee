@@ -243,9 +243,27 @@ void App::OnImGuiDraw()
             ImGui::EndMenuBar();
         }
 
+        ImGui::BeginChild("Settings",ImVec2(200,0),true);
 
+        if(ImGui::Button("Refresh"))
+        {
+
+        }
+//        ImGui::Combo("Pick a device",)
+        ImGui::EndChild();
+
+        ImGui::SameLine();
+        ImGui::BeginChild("Performance",ImVec2(0,0),true);
+
+        ImGui::Button("Save");
+        ImGui::SameLine();
+        ImGui::Button("Reset");
+
+        ImGui::EndChild();
     }
     ImGui::End();
+
+
 
     if(show_demo_window_)
     {
