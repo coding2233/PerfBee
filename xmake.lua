@@ -48,7 +48,9 @@ else
 
         after_build(function (target)
             --print("--------------".."$(buildir)/")
-            os.cp("$(projectdir)/data/*.*", "$(buildir)/windows/x64/debug/")
+             -- build/windows/x64/debug
+            os.cp("$(projectdir)/python_scripts", "$(buildir)/$(plat)/$(arch)/$(mode)/")
+            os.cp("$(projectdir)/data/*.*", "$(buildir)/$(plat)/$(arch)/$(mode)/")
         end)
 end
 

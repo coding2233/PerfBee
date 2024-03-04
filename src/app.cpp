@@ -152,7 +152,7 @@ App::App():ImplApp("PerfBee",1280,800,0)
     FILE* PythonScriptFile = fopen(scriptFilename, "r");
     if (PythonScriptFile) {
         // 运行Python脚本
-     //   PyRun_SimpleFile(PythonScriptFile, scriptFilename);
+//          PyRun_SimpleFile(PythonScriptFile, scriptFilename);
 
         PyRun_SimpleString("print('Hello, world!')");
 
