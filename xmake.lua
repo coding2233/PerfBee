@@ -1,5 +1,4 @@
 add_requires("libsdl",{alias="sdl"})
-add_requires("python",{configs={system=true}})
 
 -- add_requires("libcurl",{alias="curl"})
 -- add_requires("libgit2", {configs = {shared = true}})
@@ -44,7 +43,7 @@ else
         add_includedirs("easywsclient")
         add_files("protocol/*.cc")
         add_includedirs("protocol","protocol/include")
-        add_packages("sdl","glew","opengl","protobuf-cpp","python")
+        add_packages("sdl","glew","opengl","protobuf-cpp")
 
         after_build(function (target)
             --print("--------------".."$(buildir)/")

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package PerfBee;
+
+
+message Device
+{
+  string id = 1;
+  string name = 2;
+  string information = 3;
+  bool is_ios = 4;
+}
+
+message DeviceList
+{
+  repeated Device device_list = 1;
+}

@@ -2,6 +2,8 @@
 
 
 import subprocess
+import perf_bee_device_pb2
+
 
 
 def run_cmd(cmd):
@@ -20,3 +22,19 @@ def run_cmd(cmd):
 
 def version():
     run_cmd(["adb", "--versionaaa"])
+
+
+def devices():
+    result = run_cmd(["adb", "devices", "-l"])
+    device_list = []
+    if len(result) > 0:
+        lines = result.split('\n')
+        for line in lines:
+            if len(line) == 0:
+                continue
+            if line.startswith("List of devices attached"):
+                continue
+            device = perf_bee_device_pb2.Device()
+            device_list.append(device)
+    return device_list
+
