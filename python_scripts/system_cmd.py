@@ -14,7 +14,10 @@ def version():
 
 def devices():
     device_list = perf_device.DeviceList()
-    adb_cmd.devices()
+    adb_device_list = adb_cmd.devices()
+    device_list.device_list.extend(adb_device_list)
+    binary_data = device_list.SerializeToString()
+    sys.stdout.buffer.write(binary_data)
 
 
 def call(method, is_ios, argv):

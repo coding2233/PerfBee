@@ -98,6 +98,7 @@ namespace stdfs = std::filesystem;
 
 #include <iostream>
 #include "system_python.h"
+#include "perf_bee_device.pb.h"
 
 App::App():ImplApp("PerfBee",1280,800,0)
 {
@@ -145,8 +146,10 @@ App::App():ImplApp("PerfBee",1280,800,0)
     io.Fonts->AddFontFromFileTTF("SourceCodePro-Medium.ttf", size_pixels);
 #endif
 
-//    std::string cmd_result = SystemPython::Run("python python_scripts/main.py");
-//    std::cout << cmd_result << std::endl;
+        std::string cmd_result = SystemPython::Run("python python_scripts/main.py");
+        PerfBee::DeviceList device_list;
+        device_list.ParseFromString(cmd_result);
+        std::cout << "c++ call device count: " << device_list.device_list().size() << std::endl;
 }
 
 App::~App()
